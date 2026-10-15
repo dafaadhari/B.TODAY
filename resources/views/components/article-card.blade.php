@@ -1,51 +1,110 @@
-@props(['article', 'layout' => 'vertical'])
+@props([
+    'article',
+    'variant' => 'grid',
+    'layout' => null,
+    'showCategory' => true,
+    'highlight' => null,
+    'eager' => false,
+    'headingLevel' => 'h3',
+])
 
-@if($layout === 'horizontal')
-    <article class="group flex gap-4 dark:bg-gray-900/80 bg-white border dark:border-gray-800 border-gray-200/80 rounded-xl p-3 hover:border-amber-500/50 transition-all shadow-sm">
-        <a href="{{ route('articles.show', $article->slug) }}" class="shrink-0 w-28 h-20 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-950">
-            <img src="{{ $article->thumbnail_path ?: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=400&h=300&fit=crop' }}" alt="{{ $article->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy">
-        </a>
-        <div class="flex flex-col justify-between flex-1">
-            <div>
-                <a href="{{ route('categories.show', $article->category->slug ?? 'umum') }}" class="text-xs font-semibold text-amber-500 hover:underline">
-                    {{ $article->category->name ?? 'Umum' }}
-                </a>
-                <h3 class="text-sm font-bold dark:text-gray-100 text-slate-900 group-hover:text-amber-500 line-clamp-2 leading-snug transition-colors">
-                    <a href="{{ route('articles.show', $article->slug) }}">{{ $article->title }}</a>
-                </h3>
-            </div>
-            <div class="flex items-center justify-between text-[11px] dark:text-gray-400 text-slate-500 mt-2">
-                <span>{{ $article->published_at ? $article->published_at->diffForHumans() : $article->created_at->diffForHumans() }}</span>
-                <span>👁️ {{ number_format($article->views_count) }}</span>
-            </div>
+@php
+    // Prop lama `layout="horizontal"` tetap diterima.
+    $variant = $layout === 'horizontal' ? 'horizontal' : $variant;
+    $url = route('articles.show', $article->slug);
+    $imageUrl = $article->thumbnail_path ?: asset('images/placeholder.svg');
+    $categoryName = $article->category?->name;
+
+    $terms = collect(preg_split('/\s+/u', trim((string) $highlight)))
+        ->filter(fn (string $term): bool => mb_strlen($term) >= 2)
+        ->map(fn (string $term): string => preg_quote(e($term), '/'));
+
+    $mark = function (string $text) use ($terms): string {
+        $escaped = e($text);
+
+        return $terms->isEmpty()
+            ? $escaped
+            : preg_replace('/('.$terms->implode('|').')/iu', '<mark>$1</mark>', $escaped);
+    };
+
+    $loading = $eager ? 'eager' : 'lazy';
+    $titleLink = 'after:absolute after:inset-0 focus-visible:outline-none';
+    $cardBase = 'group relative overflow-hidden rounded-xl border border-line bg-surface transition-colors hover:border-brand/50 has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 has-[a:focus-visible]:outline-focus';
+@endphp
+
+@if ($variant === 'list')
+    <article {{ $attributes->class([$cardBase, 'flex gap-4 p-3 sm:gap-5 sm:p-4']) }}>
+        <div class="w-24 shrink-0 overflow-hidden rounded-lg bg-raised sm:w-48">
+            <img src="{{ $imageUrl }}" alt="" width="384" height="256" loading="{{ $loading }}" decoding="async"
+                class="aspect-[3/2] size-full object-cover transition-transform duration-500 group-hover:scale-105">
+        </div>
+        <div class="flex min-w-0 flex-col justify-center">
+            <p class="mb-1.5 flex flex-wrap items-center gap-x-2 text-xs">
+                @if ($showCategory && $categoryName)
+                    <span class="font-bold tracking-widest text-accent uppercase">{{ $categoryName }}</span>
+                    <span class="text-line-strong" aria-hidden="true">&bull;</span>
+                @endif
+                <x-time :date="$article->published_at" class="text-fg-subtle" />
+            </p>
+            <{{ $headingLevel }} class="text-base leading-snug font-bold text-fg-strong transition-colors group-hover:text-accent">
+                <a href="{{ $url }}" class="{{ $titleLink }}">{!! $mark($article->title) !!}</a>
+            </{{ $headingLevel }}>
+            <p class="mt-1.5 line-clamp-2 hidden text-sm text-fg-muted sm:block">{!! $mark($article->excerpt) !!}</p>
+        </div>
+    </article>
+@elseif ($variant === 'horizontal')
+    <article {{ $attributes->class([$cardBase, 'flex gap-4 p-3']) }}>
+        <div class="w-28 shrink-0 overflow-hidden rounded-lg bg-raised">
+            <img src="{{ $imageUrl }}" alt="" width="224" height="168" loading="{{ $loading }}" decoding="async"
+                class="aspect-[4/3] size-full object-cover transition-transform duration-500 group-hover:scale-105">
+        </div>
+        <div class="flex min-w-0 flex-col justify-center">
+            @if ($showCategory && $categoryName)
+                <p class="mb-1 text-xs font-bold tracking-widest text-accent uppercase">{{ $categoryName }}</p>
+            @endif
+            <{{ $headingLevel }} class="line-clamp-3 text-sm leading-snug font-bold text-fg-strong transition-colors group-hover:text-accent">
+                <a href="{{ $url }}" class="{{ $titleLink }}">{{ $article->title }}</a>
+            </{{ $headingLevel }}>
+            <x-time :date="$article->published_at" format="relative" class="mt-1.5 text-xs text-fg-subtle" />
+        </div>
+    </article>
+@elseif ($variant === 'compact')
+    <article {{ $attributes->class([$cardBase, 'flex h-full flex-col']) }}>
+        <div class="overflow-hidden bg-raised">
+            <img src="{{ $imageUrl }}" alt="" width="640" height="360" loading="{{ $loading }}" decoding="async"
+                class="aspect-video w-full object-cover transition-transform duration-500 group-hover:scale-105">
+        </div>
+        <div class="flex grow flex-col p-4">
+            @if ($showCategory && $categoryName)
+                <p class="mb-2 text-xs font-bold tracking-widest text-accent uppercase">{{ $categoryName }}</p>
+            @endif
+            <{{ $headingLevel }} class="text-sm leading-snug font-bold text-fg-strong transition-colors group-hover:text-accent">
+                <a href="{{ $url }}" class="{{ $titleLink }}">{{ $article->title }}</a>
+            </{{ $headingLevel }}>
+            <x-time :date="$article->published_at" format="relative" class="mt-auto pt-2 text-xs text-fg-subtle" />
         </div>
     </article>
 @else
-    <article class="group dark:bg-gray-900/80 bg-white border dark:border-gray-800 border-gray-200/80 rounded-xl overflow-hidden hover:border-amber-500/50 transition-all flex flex-col h-full shadow-md">
-        <a href="{{ route('articles.show', $article->slug) }}" class="relative block h-48 overflow-hidden bg-gray-100 dark:bg-gray-950">
-            <img src="{{ $article->thumbnail_path ?: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=800&h=450&fit=crop' }}" alt="{{ $article->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy">
-            <span class="absolute top-3 left-3 bg-amber-500 text-gray-950 text-xs font-extrabold px-2.5 py-1 rounded-md shadow">
-                {{ $article->category->name ?? 'Umum' }}
-            </span>
-        </a>
-        <div class="p-5 flex flex-col justify-between flex-1">
-            <div>
-                <h3 class="text-base font-bold dark:text-gray-100 text-slate-900 group-hover:text-amber-500 line-clamp-2 leading-snug transition-colors mb-2">
-                    <a href="{{ route('articles.show', $article->slug) }}">{{ $article->title }}</a>
-                </h3>
-                <p class="text-xs dark:text-gray-400 text-slate-600 line-clamp-2 leading-relaxed mb-4">
-                    {{ Str::limit(strip_tags($article->content), 110) }}
-                </p>
-            </div>
-
-            <div class="pt-3 border-t dark:border-gray-800/80 border-gray-100 flex items-center justify-between text-xs dark:text-gray-400 text-slate-500">
-                <span class="truncate max-w-[150px]">
-                    {{ $article->guest_author_name ? $article->guest_author_name . ' (' . ($article->guest_author_instansi ?: 'Publik') . ')' : ($article->author->name ?? 'Redaksi B.Today') }}
-                </span>
-                <span class="shrink-0 text-slate-400 dark:text-gray-500">
-                    {{ $article->published_at ? $article->published_at->format('d M Y') : '' }}
-                </span>
-            </div>
+    <article {{ $attributes->class([$cardBase, 'flex h-full flex-col']) }}>
+        <div class="relative overflow-hidden bg-raised">
+            <img src="{{ $imageUrl }}" alt="" width="800" height="450" loading="{{ $loading }}" decoding="async"
+                class="aspect-video w-full object-cover transition-transform duration-500 group-hover:scale-105">
+            @if ($showCategory && $categoryName)
+                <span class="absolute top-3 right-3 z-10 rounded border border-white/15 bg-black/70 px-2 py-1 text-xs font-bold text-white backdrop-blur">{{ $categoryName }}</span>
+            @endif
+        </div>
+        <div class="flex grow flex-col p-5">
+            <x-time :date="$article->published_at" format="relative" class="mb-2 text-xs font-medium text-fg-subtle" />
+            <{{ $headingLevel }} class="mb-2 text-base leading-snug font-bold text-fg-strong transition-colors group-hover:text-accent md:text-lg">
+                <a href="{{ $url }}" class="{{ $titleLink }}">{{ $article->title }}</a>
+            </{{ $headingLevel }}>
+            <p class="line-clamp-3 text-sm text-fg-muted">{{ $article->excerpt }}</p>
+            <p class="mt-auto flex items-center gap-2 pt-4 text-xs text-fg-subtle">
+                <span class="truncate">{{ $article->byline_name }}</span>
+                @if ($article->is_guest_contribution)
+                    <span class="shrink-0 rounded border border-line-strong px-1.5 py-0.5 font-bold tracking-wider text-fg-muted uppercase">Kontributor</span>
+                @endif
+            </p>
         </div>
     </article>
 @endif

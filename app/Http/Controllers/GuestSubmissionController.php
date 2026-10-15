@@ -10,7 +10,11 @@ class GuestSubmissionController extends Controller
 {
     public function create()
     {
-        $categories = Category::whereNull('parent_id')->get();
+        $categories = Category::with(['children' => fn ($q) => $q->orderBy('name')])
+            ->whereNull('parent_id')
+            ->orderBy('name')
+            ->get();
+
         return view('kirim-tulisan', compact('categories'));
     }
 

@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Advertisement;
 use App\Models\Article;
 use App\Models\Category;
+use App\Models\Tag;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -25,7 +25,7 @@ class HomeController extends Controller
         $latestArticles = (clone $publishedQuery)
             ->when($heroArticle, fn ($q) => $q->where('id', '!=', $heroArticle->id))
             ->latest('published_at')
-            ->take(8)
+            ->take(6)
             ->get();
 
         // Popular articles (most viewed)
@@ -40,42 +40,39 @@ class HomeController extends Controller
             ->take(5)
             ->get();
 
-        // Banten regional news (parent category Banten)
-        $bantenCategory = Category::where('slug', 'banten')->first();
-        $bantenChildIds = $bantenCategory ? $bantenCategory->children()->pluck('id')->toArray() : [];
+        // Banten regional news (parent category Banten), tanpa artikel yang sudah tampil di hero/terbaru
+        $bantenCategory = Category::with(['children' => fn ($q) => $q->orderBy('name')])
+            ->where('slug', 'banten')
+            ->first();
+        $bantenCategoryIds = $bantenCategory
+            ? $bantenCategory->children->pluck('id')->push($bantenCategory->id)->all()
+            : [];
+        $shownArticleIds = $latestArticles->pluck('id')->when($heroArticle, fn ($ids) => $ids->push($heroArticle->id))->all();
+
         $bantenArticles = Article::with(['category'])
             ->where('status', 'published')
-            ->whereIn('category_id', array_merge([$bantenCategory?->id], $bantenChildIds))
+            ->whereNotNull('published_at')
+            ->whereIn('category_id', $bantenCategoryIds)
+            ->whereNotIn('id', $shownArticleIds)
             ->latest('published_at')
             ->take(4)
             ->get();
 
-        // Leaderboard ad
-        $leaderboardAd = Advertisement::where('placement', 'leaderboard')
-            ->where('is_active', true)
-            ->first();
-
-        if ($leaderboardAd) {
-            $leaderboardAd->increment('impressions_count');
-        }
-
-        // Sidebar ad
-        $sidebarAd = Advertisement::where('placement', 'sidebar')
-            ->where('is_active', true)
-            ->first();
-
-        if ($sidebarAd) {
-            $sidebarAd->increment('impressions_count');
-        }
+        // Topik pilihan: tag yang dipakai artikel terbit
+        $featuredTags = Tag::whereHas('articles', fn ($q) => $q->where('status', 'published'))
+            ->withCount(['articles' => fn ($q) => $q->where('status', 'published')])
+            ->orderByDesc('articles_count')
+            ->take(8)
+            ->get();
 
         return view('home', compact(
             'heroArticle',
             'latestArticles',
             'popularArticles',
             'trendingArticles',
+            'bantenCategory',
             'bantenArticles',
-            'leaderboardAd',
-            'sidebarAd'
+            'featuredTags',
         ));
     }
 }

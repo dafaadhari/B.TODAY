@@ -1,96 +1,159 @@
-<x-app-layout :title="$article->title . ' - B.Today'" :description="Str::limit(strip_tags($article->content), 150)">
-    <div class="max-w-4xl mx-auto">
-        <!-- Breadcrumbs -->
-        <nav class="flex items-center space-x-2 text-xs dark:text-gray-400 text-slate-500 mb-6">
-            <a href="{{ route('home') }}" class="hover:text-amber-500">Beranda</a>
-            <span>/</span>
-            <a href="{{ route('categories.show', $article->category->slug) }}" class="hover:text-amber-500">{{ $article->category->name }}</a>
-            <span>/</span>
-            <span class="dark:text-gray-300 text-slate-700 truncate max-w-[200px]">{{ $article->title }}</span>
-        </nav>
+@php
+    $articleUrl = route('articles.show', $article->slug);
+    $category = $article->category;
 
-        <!-- Article Header -->
-        <header class="mb-8">
-            <span class="inline-block bg-amber-500 text-gray-950 font-extrabold text-xs px-3 py-1 rounded-md uppercase tracking-wider mb-3">
-                {{ $article->category->name }}
-            </span>
-            <h1 class="text-2xl md:text-4xl font-black dark:text-white text-slate-900 leading-tight mb-4">
+    $breadcrumb = [['label' => 'Beranda', 'url' => route('home')]];
+    if ($category?->parent) {
+        $breadcrumb[] = ['label' => $category->parent->name, 'url' => route('categories.show', $category->parent->slug)];
+    }
+    if ($category) {
+        $breadcrumb[] = ['label' => $category->name, 'url' => route('categories.show', $category->slug)];
+    }
+    $breadcrumb[] = ['label' => $article->title, 'class' => 'hidden md:flex'];
+
+    $imageUrl = $article->thumbnail_path ? url($article->thumbnail_path) : null;
+@endphp
+
+<x-app-layout :title="$article->title.' - '.config('portal.name')" :description="$article->excerpt" :image="$imageUrl" type="article" :canonical="$articleUrl">
+    @push('head')
+        @if ($article->published_at)
+            <meta property="article:published_time" content="{{ $article->published_at->toIso8601String() }}">
+        @endif
+        @if ($category)
+            <meta property="article:section" content="{{ $category->name }}">
+        @endif
+        <script type="application/ld+json">
+            {!! json_encode([
+                '@context' => 'https://schema.org',
+                '@type' => 'NewsArticle',
+                'headline' => $article->title,
+                'description' => $article->excerpt,
+                'image' => $imageUrl ? [$imageUrl] : [asset('images/og-default.png')],
+                'datePublished' => $article->published_at?->toIso8601String(),
+                'dateModified' => $article->published_at?->toIso8601String(),
+                'author' => [['@type' => 'Person', 'name' => $article->byline_name]],
+                'publisher' => ['@type' => 'NewsMediaOrganization', 'name' => config('portal.name'), 'logo' => ['@type' => 'ImageObject', 'url' => asset('images/og-default.png')]],
+                'mainEntityOfPage' => $articleUrl,
+            ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}
+        </script>
+        <script type="application/ld+json">
+            {!! json_encode([
+                '@context' => 'https://schema.org',
+                '@type' => 'BreadcrumbList',
+                'itemListElement' => collect($breadcrumb)->filter(fn ($item) => ! empty($item['url']))->values()->map(fn ($item, $index) => [
+                    '@type' => 'ListItem',
+                    'position' => $index + 1,
+                    'name' => $item['label'],
+                    'item' => $item['url'],
+                ])->all(),
+            ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}
+        </script>
+    @endpush
+
+    <div class="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 py-8 lg:grid-cols-3">
+        <article class="min-w-0 lg:col-span-2">
+            <x-breadcrumb :items="$breadcrumb" />
+
+            <h1 class="mb-6 text-[1.75rem] leading-[1.15] font-extrabold text-balance text-fg-strong sm:text-4xl lg:text-5xl">
                 {{ $article->title }}
             </h1>
 
-            <!-- Byline & Metadata -->
-            <div class="flex flex-wrap items-center justify-between gap-4 py-3 border-y dark:border-gray-800 border-gray-200 text-xs dark:text-gray-400 text-slate-500">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center font-bold text-amber-500">
-                        {{ strtoupper(substr($article->guest_author_name ?: ($article->author->name ?? 'B'), 0, 1)) }}
-                    </div>
-                    <div>
-                        <span class="block font-bold dark:text-gray-200 text-slate-800">
-                            {{ $article->guest_author_name ? $article->guest_author_name : ($article->author->name ?? 'Redaksi B.Today') }}
-                        </span>
-                        @if($article->guest_author_instansi)
-                            <span class="block text-[11px] text-amber-500">Penulis Publik ({{ $article->guest_author_instansi }})</span>
-                        @else
-                            <span class="block text-[11px] dark:text-gray-500 text-slate-400">Tim Redaksi B.Today</span>
-                        @endif
-                    </div>
-                </div>
-
-                <div class="flex items-center space-x-4">
-                    <span>📅 {{ $article->published_at ? $article->published_at->translatedFormat('l, d F Y H:i') : $article->created_at->format('d/m/Y') }} WIB</span>
-                    <span>👁️ {{ number_format($article->views_count) }} views</span>
-                </div>
+            <div class="mb-8 flex flex-col justify-between gap-4 border-y border-line py-4 sm:flex-row sm:items-center">
+                <x-byline :article="$article" />
+                <x-share-buttons :url="$articleUrl" :title="$article->title" class="shrink-0" />
             </div>
-        </header>
 
-        <!-- Social Share Bar -->
-        <div class="flex items-center space-x-3 mb-6 text-xs font-semibold">
-            <span class="dark:text-gray-400 text-slate-500">Bagikan:</span>
-            <a href="https://api.whatsapp.com/send?text={{ urlencode($article->title . ' ' . url()->current()) }}" target="_blank" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors flex items-center space-x-1">
-                <span>WhatsApp</span>
-            </a>
-            <a href="https://twitter.com/intent/tweet?text={{ urlencode($article->title) }}&url={{ urlencode(url()->current()) }}" target="_blank" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-lg transition-colors flex items-center space-x-1">
-                <span>Twitter / X</span>
-            </a>
-        </div>
+            @if ($article->thumbnail_path)
+                <figure class="mb-8">
+                    <img src="{{ $article->thumbnail_path }}" alt="{{ $article->title }}" width="1280" height="720" fetchpriority="high" decoding="async"
+                        class="aspect-video w-full rounded-2xl bg-raised object-cover">
+                </figure>
+            @endif
 
-        <!-- Featured Image -->
-        @if($article->thumbnail_path)
-            <div class="mb-8 rounded-2xl overflow-hidden border dark:border-gray-800 border-gray-200 shadow-2xl">
-                <img src="{{ $article->thumbnail_path }}" alt="{{ $article->title }}" class="w-full h-auto max-h-[500px] object-cover">
-            </div>
-        @endif
+            {{-- Iklan native disisipkan setelah paragraf ke-3; artikel pendek mendapat iklan setelah isi (PRD 4C.3). --}}
+            <div class="article-body">{!! $contentBeforeAd !!}</div>
+            <x-ad-slot placement="in_article" class="my-8 max-w-[70ch]" />
+            @if ($contentAfterAd !== '')
+                <div class="article-body">{!! $contentAfterAd !!}</div>
+            @endif
 
-        <!-- Main Body Content -->
-        <article class="prose dark:prose-invert max-w-none dark:text-gray-200 text-slate-800 text-base leading-relaxed space-y-6">
-            {!! $article->content !!}
-        </article>
-
-        <!-- In-Article Ad Slot -->
-        <x-ad-slot :ad="$inArticleAd" placement="in_article" />
-
-        <!-- Tags -->
-        @if($article->tags->count())
-            <div class="my-8 pt-6 border-t dark:border-gray-800 border-gray-200 flex flex-wrap items-center gap-2">
-                <span class="text-xs font-bold dark:text-gray-400 text-slate-500 mr-2">Tags:</span>
-                @foreach($article->tags as $tag)
-                    <a href="{{ route('search', ['q' => $tag->name]) }}" class="text-xs dark:bg-gray-800 bg-slate-100 hover:bg-amber-500 hover:text-gray-950 dark:text-gray-300 text-slate-700 px-3 py-1 rounded-full transition-colors">
-                        #{{ $tag->name }}
+            @if ($article->is_guest_contribution)
+                <aside class="mt-10 max-w-[70ch] rounded-xl border border-line bg-raised p-5 text-sm leading-relaxed text-fg-muted" aria-label="Catatan tulisan pembaca">
+                    <p>
+                        <span class="font-bold text-fg-strong">Tulisan kiriman pembaca.</span>
+                        Isi tulisan ini menjadi tanggung jawab penulis dan telah melalui peninjauan redaksi {{ config('portal.name') }}.
+                    </p>
+                    <a href="{{ route('kirim-tulisan.create') }}" class="mt-2 inline-flex min-h-11 items-center font-bold text-accent hover:underline">
+                        Ingin menulis juga? Kirim tulisan Anda <span class="ml-1" aria-hidden="true">&rarr;</span>
                     </a>
-                @endforeach
-            </div>
-        @endif
+                </aside>
+            @endif
 
-        <!-- Related Articles -->
-        @if($relatedArticles->count())
-            <section class="mt-12 pt-8 border-t dark:border-gray-800 border-gray-200">
-                <h3 class="text-lg font-black text-amber-500 mb-6">Artikel Terkait</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    @foreach($relatedArticles as $relArticle)
-                        <x-article-card :article="$relArticle" />
+            @if ($article->tags->isNotEmpty())
+                <div class="mt-10 flex flex-wrap items-center gap-2 border-t border-line pt-6">
+                    <span class="mr-1 text-xs font-bold tracking-widest text-fg-muted uppercase">Tags:</span>
+                    @foreach ($article->tags as $tag)
+                        <a href="{{ route('search', ['q' => $tag->name]) }}"
+                            class="inline-flex min-h-10 items-center rounded-lg border border-line-strong bg-raised px-3 text-xs font-bold text-fg transition-colors hover:border-brand hover:text-accent">
+                            #{{ $tag->name }}
+                        </a>
                     @endforeach
                 </div>
-            </section>
-        @endif
+            @endif
+
+            <x-share-buttons :url="$articleUrl" :title="$article->title" label="Bagikan artikel ini"
+                :class="Arr::toCssClasses(['mt-6', 'border-t border-line pt-6' => $article->tags->isEmpty()])" />
+
+            @if ($relatedArticles->isNotEmpty())
+                <section aria-label="Artikel terkait" class="mt-12">
+                    <x-section-heading title="Artikel Terkait" />
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        @foreach ($relatedArticles as $related)
+                            <div @class(['hidden sm:block' => $loop->index >= 2])>
+                                <x-article-card :article="$related" variant="compact" />
+                            </div>
+                        @endforeach
+                    </div>
+                </section>
+            @endif
+        </article>
+
+        <aside class="space-y-10 lg:sticky lg:top-24 lg:self-start" aria-label="Sidebar">
+            <x-ad-slot placement="sidebar" />
+
+            @if ($popularArticles->isNotEmpty())
+                <section aria-label="Baca juga">
+                    <x-section-heading title="Baca Juga" size="sm" />
+                    <ul class="space-y-1">
+                        @foreach ($popularArticles as $popular)
+                            <li class="group relative rounded-lg p-3 transition-colors hover:bg-raised/50">
+                                <h3 class="text-sm leading-snug font-bold text-fg transition-colors group-hover:text-accent">
+                                    <a href="{{ route('articles.show', $popular->slug) }}" class="after:absolute after:inset-0">{{ $popular->title }}</a>
+                                </h3>
+                                <p class="mt-1 text-xs text-fg-subtle">
+                                    <x-time :date="$popular->published_at" format="relative" /> &bull; {{ $popular->views_label }} dibaca
+                                </p>
+                            </li>
+                        @endforeach
+                    </ul>
+                </section>
+            @endif
+
+            @if ($article->tags->isNotEmpty())
+                <section aria-label="Topik terkait" class="hidden lg:block">
+                    <x-section-heading title="Topik Terkait" size="sm" />
+                    <ul class="flex flex-wrap gap-2">
+                        @foreach ($article->tags as $tag)
+                            <li>
+                                <a href="{{ route('search', ['q' => $tag->name]) }}"
+                                    class="inline-flex min-h-10 items-center rounded-lg border border-line-strong bg-raised px-4 text-xs font-bold text-fg transition-colors hover:border-brand hover:text-accent">
+                                    #{{ $tag->name }}
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </section>
+            @endif
+        </aside>
     </div>
 </x-app-layout>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id" class="dark">
 <head>
-    @include('partials.meta', ['title' => $title ?? 'CMS Redaksi Panel - B.Today'])
+    @include('partials.admin-head', ['title' => $title ?? 'CMS Redaksi Panel - B.Today'])
 </head>
 <body class="bg-gray-950 text-gray-100 min-h-screen flex flex-col font-sans">
     <!-- Admin Header -->

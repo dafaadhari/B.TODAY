@@ -1,117 +1,62 @@
-@props([
-    'title' => 'B.Today - Portal Berita Modern & Terpercaya',
-    'description' => 'Portal berita independen menyajikan berita terkini Nasional, Banten, Olahraga, Teknologi, dan Gaya Hidup.',
-    'image' => asset('images/og-default.jpg'),
-    'type' => 'website',
-])
+@php
+    $siteName = config('portal.name');
+    $metaTitle = $title ?? $siteName.' - Berita Terkini Banten & Nasional';
+    $metaDescription = $description ?? 'Portal berita independen menyajikan berita terkini Nasional, Banten, Olahraga, Teknologi, dan Gaya Hidup.';
+    $metaImage = $image ?? asset('images/og-default.png');
+    $metaUrl = $canonical ?? url()->current();
+@endphp
 
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#050505">
 
-<!-- Synchronous Theme Setup (Prevents FOUC / dual-mode flash on page navigation) -->
+{{-- Tema diterapkan sebelum halaman dirender supaya tidak ada kedipan tema salah (PRD 9.4). --}}
 <script>
-    (function() {
+    (function () {
+        var dark = true;
         try {
-            var isAdmin = window.location.pathname.startsWith('/admin');
-            if (isAdmin) {
-                document.documentElement.classList.add('dark');
-                document.documentElement.classList.remove('light');
-            } else {
-                var stored = localStorage.getItem('theme');
-                if (stored === 'light') {
-                    document.documentElement.classList.remove('dark');
-                    document.documentElement.classList.add('light');
-                } else {
-                    document.documentElement.classList.add('dark');
-                    document.documentElement.classList.remove('light');
-                }
-            }
-        } catch (e) {
-            document.documentElement.classList.add('dark');
+            dark = localStorage.getItem('theme') !== 'light';
+        } catch (error) {}
+        var root = document.documentElement;
+        root.classList.toggle('dark', dark);
+        root.classList.toggle('light', !dark);
+        if (!dark) {
+            document.querySelector('meta[name="theme-color"]').setAttribute('content', '#fafaf9');
         }
     })();
 </script>
 
-<title>{{ $title }}</title>
-<meta name="description" content="{{ $description }}">
+<title>{{ $metaTitle }}</title>
+<meta name="description" content="{{ $metaDescription }}">
+@if (! empty($robots))
+    <meta name="robots" content="{{ $robots }}">
+@endif
+<link rel="canonical" href="{{ $metaUrl }}">
 
-<!-- OpenGraph / Facebook -->
-<meta property="og:type" content="{{ $type }}">
-<meta property="og:url" content="{{ url()->current() }}">
-<meta property="og:title" content="{{ $title }}">
-<meta property="og:description" content="{{ $description }}">
-<meta property="og:image" content="{{ $image }}">
+<meta property="og:site_name" content="{{ $siteName }}">
+<meta property="og:locale" content="id_ID">
+<meta property="og:type" content="{{ $type ?? 'website' }}">
+<meta property="og:url" content="{{ $metaUrl }}">
+<meta property="og:title" content="{{ $metaTitle }}">
+<meta property="og:description" content="{{ $metaDescription }}">
+<meta property="og:image" content="{{ $metaImage }}">
 
-<!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:url" content="{{ url()->current() }}">
-<meta name="twitter:title" content="{{ $title }}">
-<meta name="twitter:description" content="{{ $description }}">
-<meta name="twitter:image" content="{{ $image }}">
+<meta name="twitter:title" content="{{ $metaTitle }}">
+<meta name="twitter:description" content="{{ $metaDescription }}">
+<meta name="twitter:image" content="{{ $metaImage }}">
 
-<!-- Google Fonts -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
-
-<!-- Tailwind CSS & Alpine.js -->
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-    tailwind.config = {
-        darkMode: 'class',
-        theme: {
-            extend: {
-                colors: {
-                    brand: {
-                        50: '#fff7ed',
-                        500: '#f97316',
-                        600: '#ea580c',
-                    }
-                },
-                keyframes: {
-                    ticker: {
-                        '0%': { transform: 'translateX(0)' },
-                        '100%': { transform: 'translateX(-50%)' },
-                    }
-                },
-                animation: {
-                    ticker: 'ticker 20s linear infinite',
-                }
-            }
-        }
-    }
+<script type="application/ld+json">
+    {!! json_encode([
+        '@context' => 'https://schema.org',
+        '@type' => 'NewsMediaOrganization',
+        'name' => $siteName,
+        'url' => url('/'),
+        'logo' => asset('images/og-default.png'),
+        'email' => config('portal.office.email_redaksi'),
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}
 </script>
-<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-<style>
-    [x-cloak] {
-        display: none !important;
-    }
-
-    body {
-        font-family: 'Plus Jakarta Sans', sans-serif;
-    }
-
-    .glass-nav {
-        background: rgba(15, 23, 42, 0.75);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-    }
-    .light .glass-nav {
-        background: rgba(255, 255, 255, 0.85);
-    }
-
-    /* Smooth color transition ONLY when toggling theme, not during page load or route navigation */
-    .theme-transitioning,
-    .theme-transitioning *,
-    .theme-transitioning *::before,
-    .theme-transitioning *::after {
-        transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1),
-                    border-color 300ms cubic-bezier(0.4, 0, 0.2, 1),
-                    color 300ms cubic-bezier(0.4, 0, 0.2, 1),
-                    fill 300ms cubic-bezier(0.4, 0, 0.2, 1),
-                    stroke 300ms cubic-bezier(0.4, 0, 0.2, 1),
-                    box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) !important;
-        transition-delay: 0s !important;
-    }
-</style>
+@fonts
+@vite(['resources/css/app.css', 'resources/js/app.js'])

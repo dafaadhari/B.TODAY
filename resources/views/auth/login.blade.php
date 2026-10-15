@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id" class="dark">
 <head>
-    @include('partials.meta', ['title' => 'Login Redaksi CMS - B.Today'])
+    @include('partials.admin-head', ['title' => 'Login Redaksi CMS - B.Today'])
 </head>
 <body class="bg-gray-950 text-gray-100 min-h-screen flex items-center justify-center p-4">
     <div class="w-full max-w-md bg-gray-900 border border-gray-800 rounded-2xl p-8 shadow-2xl">
