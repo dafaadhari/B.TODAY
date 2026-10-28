@@ -2,7 +2,7 @@
 
 <article {{ $attributes->class('group relative flex flex-col gap-6 lg:flex-row lg:gap-8 has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-4 has-[a:focus-visible]:outline-focus rounded-2xl') }}>
     <div class="relative overflow-hidden rounded-2xl bg-raised lg:w-2/3">
-        <img src="{{ $article->thumbnail_path ?: asset('images/placeholder.svg') }}" alt="" width="1280" height="720" fetchpriority="high" decoding="async"
+        <img src="{{ $article->thumbnail_path ?: asset('images/placeholder.svg') }}" data-fallback="{{ asset('images/placeholder.svg') }}" alt="" width="1280" height="720" fetchpriority="high" decoding="async"
             class="aspect-video w-full object-cover transition-transform duration-700 group-hover:scale-105 md:aspect-auto md:h-[420px]">
         <div class="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent" aria-hidden="true"></div>
         @if ($article->category)

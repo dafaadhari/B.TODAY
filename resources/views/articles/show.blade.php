@@ -65,7 +65,7 @@
 
             @if ($article->thumbnail_path)
                 <figure class="mb-8">
-                    <img src="{{ $article->thumbnail_path }}" alt="{{ $article->title }}" width="1280" height="720" fetchpriority="high" decoding="async"
+                    <img src="{{ $article->thumbnail_path }}" data-fallback="{{ asset('images/placeholder.svg') }}" alt="{{ $article->title }}" width="1280" height="720" fetchpriority="high" decoding="async"
                         class="aspect-video w-full rounded-2xl bg-raised object-cover">
                 </figure>
             @endif

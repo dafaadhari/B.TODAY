@@ -203,6 +203,36 @@ Alpine.data('guestDraft', (hasServerInput = false, submitted = false) => ({
     },
 }));
 
+/**
+ * Gambar artikel dari URL eksternal bisa hilang (404). Ganti dengan placeholder
+ * bermerek dari `data-fallback`, bukan ikon gambar rusak. Lewat JS, bukan atribut
+ * onerror inline, agar tetap kompatibel dengan header CSP (PRD D.8).
+ */
+function useImageFallback(image) {
+    const fallback = image.dataset.fallback;
+
+    if (fallback && !image.src.endsWith(fallback)) {
+        image.src = fallback;
+    }
+}
+
+document.addEventListener(
+    'error',
+    (event) => {
+        if (event.target instanceof HTMLImageElement) {
+            useImageFallback(event.target);
+        }
+    },
+    true,
+);
+
+// Gambar yang sudah gagal sebelum script ini dimuat.
+document.querySelectorAll('img[data-fallback]').forEach((image) => {
+    if (image.complete && image.naturalWidth === 0) {
+        useImageFallback(image);
+    }
+});
+
 window.Alpine = Alpine;
 
 Alpine.start();

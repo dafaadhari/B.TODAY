@@ -182,7 +182,7 @@ class DatabaseSeeder extends Seeder
                 'author' => $adminUsers[3],
                 'reviewer' => $adminUsers[0],
                 'views' => 3200,
-                'thumbnail' => 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800&h=450&fit=crop',
+                'thumbnail' => 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=800&h=450&fit=crop',
                 'content' => '<p>Skuad Garuda menggelar latihan perdana di Jakarta untuk persiapan laga krusial minggu ini. Pelatih optimis koordinasi lini belakang dan ketajaman penyerang muda akan memberikan hasil maksimal di hadapan puluhan ribu suporter.</p>',
             ],
             [
@@ -192,7 +192,7 @@ class DatabaseSeeder extends Seeder
                 'author' => $adminUsers[0],
                 'reviewer' => $adminUsers[1],
                 'views' => 2100,
-                'thumbnail' => 'https://images.unsplash.com/photo-1677442136019-21780efad99a?w=800&h=450&fit=crop',
+                'thumbnail' => 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&h=450&fit=crop',
                 'content' => '<p>Inovasi kecerdasan buatan terus berkembang pesat. Platform AI terbaru kini mampu membantu jurnalis melakukan pemrosesan data cepat dan verifikasi fakta awal secara transparan.</p>',
             ],
         ];

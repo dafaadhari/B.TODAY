@@ -35,7 +35,7 @@
 @if ($variant === 'list')
     <article {{ $attributes->class([$cardBase, 'flex gap-4 p-3 sm:gap-5 sm:p-4']) }}>
         <div class="w-24 shrink-0 overflow-hidden rounded-lg bg-raised sm:w-48">
-            <img src="{{ $imageUrl }}" alt="" width="384" height="256" loading="{{ $loading }}" decoding="async"
+            <img src="{{ $imageUrl }}" data-fallback="{{ asset('images/placeholder.svg') }}" alt="" width="384" height="256" loading="{{ $loading }}" decoding="async"
                 class="aspect-[3/2] size-full object-cover transition-transform duration-500 group-hover:scale-105">
         </div>
         <div class="flex min-w-0 flex-col justify-center">
@@ -55,7 +55,7 @@
 @elseif ($variant === 'horizontal')
     <article {{ $attributes->class([$cardBase, 'flex gap-4 p-3']) }}>
         <div class="w-28 shrink-0 overflow-hidden rounded-lg bg-raised">
-            <img src="{{ $imageUrl }}" alt="" width="224" height="168" loading="{{ $loading }}" decoding="async"
+            <img src="{{ $imageUrl }}" data-fallback="{{ asset('images/placeholder.svg') }}" alt="" width="224" height="168" loading="{{ $loading }}" decoding="async"
                 class="aspect-[4/3] size-full object-cover transition-transform duration-500 group-hover:scale-105">
         </div>
         <div class="flex min-w-0 flex-col justify-center">
@@ -71,7 +71,7 @@
 @elseif ($variant === 'compact')
     <article {{ $attributes->class([$cardBase, 'flex h-full flex-col']) }}>
         <div class="overflow-hidden bg-raised">
-            <img src="{{ $imageUrl }}" alt="" width="640" height="360" loading="{{ $loading }}" decoding="async"
+            <img src="{{ $imageUrl }}" data-fallback="{{ asset('images/placeholder.svg') }}" alt="" width="640" height="360" loading="{{ $loading }}" decoding="async"
                 class="aspect-video w-full object-cover transition-transform duration-500 group-hover:scale-105">
         </div>
         <div class="flex grow flex-col p-4">
@@ -87,7 +87,7 @@
 @else
     <article {{ $attributes->class([$cardBase, 'flex h-full flex-col']) }}>
         <div class="relative overflow-hidden bg-raised">
-            <img src="{{ $imageUrl }}" alt="" width="800" height="450" loading="{{ $loading }}" decoding="async"
+            <img src="{{ $imageUrl }}" data-fallback="{{ asset('images/placeholder.svg') }}" alt="" width="800" height="450" loading="{{ $loading }}" decoding="async"
                 class="aspect-video w-full object-cover transition-transform duration-500 group-hover:scale-105">
             @if ($showCategory && $categoryName)
                 <span class="absolute top-3 right-3 z-10 rounded border border-white/15 bg-black/70 px-2 py-1 text-xs font-bold text-white backdrop-blur">{{ $categoryName }}</span>
