@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
-use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -34,6 +35,16 @@ class User extends Authenticatable
             'password' => 'hashed',
             'two_factor_enabled' => 'boolean',
         ];
+    }
+
+    /**
+     * Dua huruf awal nama untuk avatar (mis. "Moch Dapa Adhari" menjadi "MD").
+     */
+    protected function initials(): Attribute
+    {
+        return Attribute::get(fn (): string => Str::of($this->name)->explode(' ')->filter()->take(2)
+            ->map(fn (string $word): string => Str::upper(Str::substr($word, 0, 1)))
+            ->implode(''));
     }
 
     public function articles(): HasMany

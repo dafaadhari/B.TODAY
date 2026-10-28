@@ -4,17 +4,18 @@
             <h1 class="text-2xl font-black text-white">Manajemen Artikel Redaksi</h1>
             <p class="text-xs text-gray-400">Kelola, sunting, dan setujui penayangan artikel berita B.Today.</p>
         </div>
-        <a href="{{ route('admin.articles.create') }}" class="py-3 px-6 bg-amber-500 hover:bg-amber-600 text-gray-950 font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-lg text-center shrink-0">
-            + Tambah Berita Baru
+        <a href="{{ route('admin.articles.create') }}" class="inline-flex items-center justify-center gap-1.5 py-3 px-6 bg-amber-500 hover:bg-amber-600 text-gray-950 font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-lg shrink-0">
+            <x-heroicon-o-plus class="w-4 h-4" aria-hidden="true" />
+            Tambah Berita Baru
         </a>
     </div>
 
     <!-- Summary Stats Cards -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <x-stat-card title="Total Berita" :value="$stats['total']" icon="📰" color="amber" />
-        <x-stat-card title="Terbit" :value="$stats['published']" icon="✅" color="emerald" />
-        <x-stat-card title="Menunggu Review" :value="$stats['pending']" icon="⏳" color="amber" />
-        <x-stat-card title="Draf" :value="$stats['draft']" icon="📝" color="blue" />
+    <div class="grid grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-6">
+        <x-stat-card title="Total Berita" :value="$stats['total']" icon="newspaper" color="amber" />
+        <x-stat-card title="Terbit" :value="$stats['published']" icon="check-circle" color="emerald" />
+        <x-stat-card title="Menunggu Review" :value="$stats['pending']" icon="clock" color="amber" />
+        <x-stat-card title="Draf" :value="$stats['draft']" icon="pencil-square" color="blue" />
     </div>
 
     <!-- Filters & Search Bar -->
@@ -40,8 +41,8 @@
 
     <!-- Articles Table -->
     <div class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden shadow-xl">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-xs">
+        <div class="relative overflow-x-auto">
+            <table class="w-full min-w-[48rem] text-left border-collapse text-xs">
                 <thead>
                     <tr class="bg-gray-950 text-gray-400 border-b border-gray-800">
                         <th class="p-4 font-bold uppercase tracking-wider">Sampul</th>
@@ -75,25 +76,31 @@
                             <td class="p-4 text-[11px] text-gray-400">
                                 {{ $article->created_at->format('d/m/Y H:i') }}
                             </td>
-                            <td class="p-4 text-right space-x-2">
-                                @if($article->status !== 'published')
-                                    <form action="{{ route('admin.articles.approve', $article->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Setujui dan terbitkan artikel ini?')">
+                            <td class="p-4">
+                                <div class="flex items-center justify-end gap-2">
+                                    @if($article->status !== 'published')
+                                        <form action="{{ route('admin.articles.approve', $article->id) }}" method="POST" onsubmit="return confirm('Setujui dan terbitkan artikel ini?')">
+                                            @csrf
+                                            <button type="submit" class="px-3 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/40 rounded-lg text-[11px] font-bold">
+                                                Setujui
+                                            </button>
+                                        </form>
+                                    @endif
+                                    <a href="{{ route('admin.articles.edit', $article->id) }}" title="Edit artikel"
+                                        class="inline-flex w-8 h-8 items-center justify-center bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/40 rounded-lg">
+                                        <x-heroicon-o-pencil-square class="w-4 h-4" aria-hidden="true" />
+                                        <span class="sr-only">Edit artikel {{ $article->title }}</span>
+                                    </a>
+                                    <form action="{{ route('admin.articles.destroy', $article->id) }}" method="POST" onsubmit="return confirm('Hapus artikel ini?')">
                                         @csrf
-                                        <button type="submit" class="px-2.5 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/40 rounded-lg text-[11px] font-bold">
-                                            ✔ Approve
+                                        @method('DELETE')
+                                        <button type="submit" title="Hapus artikel"
+                                            class="inline-flex w-8 h-8 items-center justify-center bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 border border-rose-500/40 rounded-lg">
+                                            <x-heroicon-o-trash class="w-4 h-4" aria-hidden="true" />
+                                            <span class="sr-only">Hapus artikel {{ $article->title }}</span>
                                         </button>
                                     </form>
-                                @endif
-                                <a href="{{ route('admin.articles.edit', $article->id) }}" class="px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/40 rounded-lg text-[11px] font-bold">
-                                    ✏️ Edit
-                                </a>
-                                <form action="{{ route('admin.articles.destroy', $article->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Hapus artikel ini?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 border border-rose-500/40 rounded-lg text-[11px] font-bold">
-                                        🗑️ Hapus
-                                    </button>
-                                </form>
+                                </div>
                             </td>
                         </tr>
                     @empty
@@ -106,8 +113,10 @@
                 </tbody>
             </table>
         </div>
-        <div class="p-4 border-t border-gray-800">
-            {{ $articles->links() }}
-        </div>
+        @if ($articles->total() > 0)
+            <div class="p-4 border-t border-gray-800">
+                {{ $articles->links('vendor.pagination.admin', ['noun' => 'artikel']) }}
+            </div>
+        @endif
     </div>
 </x-admin-layout>

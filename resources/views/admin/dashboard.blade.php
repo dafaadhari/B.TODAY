@@ -1,33 +1,33 @@
 <x-admin-layout title="Dashboard Redaksi - B.Today">
-    <!-- Welcome Banner -->
-    <div class="bg-gradient-to-r from-amber-500/20 via-gray-900 to-gray-900 border border-amber-500/30 p-6 rounded-2xl flex items-center justify-between shadow-xl">
+    <!-- Page Header (sapaan setelah login tampil sebagai notifikasi di layout) -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <span class="text-xs font-bold uppercase tracking-widest text-amber-400">CMS Portal Berita</span>
-            <h1 class="text-2xl font-black text-white mt-1">Selamat Datang Kembali, {{ Auth::user()->name ?? 'Redaksi' }}! 👋</h1>
-            <p class="text-xs text-gray-400 mt-1">Sistem manajemen konten redaksi B.Today berjalan optimal.</p>
+            <h1 class="text-2xl font-black text-white">Dashboard</h1>
+            <p class="text-xs text-gray-400">{{ now()->locale('id')->timezone('Asia/Jakarta')->translatedFormat('l, j F Y') }}</p>
         </div>
-        <a href="{{ route('admin.articles.create') }}" class="py-2.5 px-5 bg-amber-500 hover:bg-amber-600 text-gray-950 font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-lg hidden sm:inline-block">
-            + Tambah Berita Baru
+        <a href="{{ route('admin.articles.create') }}" class="inline-flex items-center justify-center gap-1.5 py-3 px-6 bg-amber-500 hover:bg-amber-600 text-gray-950 font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-lg shrink-0">
+            <x-heroicon-o-plus class="w-4 h-4" aria-hidden="true" />
+            Tambah Berita Baru
         </a>
     </div>
 
     <!-- Summary Stats Cards Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <x-stat-card title="Total Artikel" :value="$stats['total_articles']" icon="📰" color="amber" />
-        <x-stat-card title="Artikel Terbit" :value="$stats['published_articles']" icon="✅" color="emerald" />
-        <x-stat-card title="Draf Redaksi" :value="$stats['draft_articles']" icon="📝" color="blue" />
-        <x-stat-card title="Menunggu Review Admin" :value="$stats['pending_reviews']" icon="⏳" color="amber" />
-        <x-stat-card title="Kiriman Publik Pending" :value="$stats['pending_submissions']" icon="📥" color="rose" />
-        <x-stat-card title="Iklan Aktif" :value="$stats['active_ads']" icon="📢" color="emerald" />
+    <div class="grid grid-cols-3 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4">
+        <x-stat-card title="Total Artikel" :value="$stats['total_articles']" icon="newspaper" color="amber" />
+        <x-stat-card title="Artikel Terbit" :value="$stats['published_articles']" icon="check-circle" color="emerald" />
+        <x-stat-card title="Draf" :value="$stats['draft_articles']" icon="pencil-square" color="blue" />
+        <x-stat-card title="Menunggu Review" :value="$stats['pending_reviews']" icon="clock" color="amber" />
+        <x-stat-card title="Kiriman Pending" :value="$stats['pending_submissions']" icon="inbox-arrow-down" color="rose" />
+        <x-stat-card title="Iklan Aktif" :value="$stats['active_ads']" icon="megaphone" color="emerald" />
     </div>
 
     <!-- Recent Tables Split -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- Pending Submissions -->
         <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl">
-            <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center justify-between gap-3 mb-4">
                 <h3 class="text-sm font-bold text-white">Antrean Kiriman Publik Terbaru</h3>
-                <a href="{{ route('admin.submissions.index') }}" class="text-xs text-amber-400 hover:underline">Lihat Semua →</a>
+                <a href="{{ route('admin.submissions.index') }}" class="shrink-0 whitespace-nowrap text-xs text-amber-400 hover:underline">Lihat Semua →</a>
             </div>
             @if($latestSubmissions->count())
                 <div class="space-y-3">
@@ -48,9 +48,9 @@
 
         <!-- Recent Articles -->
         <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-xl">
-            <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center justify-between gap-3 mb-4">
                 <h3 class="text-sm font-bold text-white">Artikel Redaksi Terbaru</h3>
-                <a href="{{ route('admin.articles.index') }}" class="text-xs text-amber-400 hover:underline">Lihat Semua →</a>
+                <a href="{{ route('admin.articles.index') }}" class="shrink-0 whitespace-nowrap text-xs text-amber-400 hover:underline">Lihat Semua →</a>
             </div>
             @if($latestArticles->count())
                 <div class="space-y-3">

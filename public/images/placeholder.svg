@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-label="B.Today">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1e2939"/>
+      <stop offset="1" stop-color="#101828"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#bg)"/>
+  <rect x="360" y="185" width="80" height="80" rx="8" fill="#ffb900" fill-opacity="0.85"/>
+  <text x="400" y="242" text-anchor="middle" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-size="48" font-weight="800" fill="#000">B</text>
+</svg>

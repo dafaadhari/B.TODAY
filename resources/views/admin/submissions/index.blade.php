@@ -5,17 +5,17 @@
     </div>
 
     <!-- Summary Stats Cards -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <x-stat-card title="Total Kiriman" :value="$stats['total']" icon="📥" color="amber" />
-        <x-stat-card title="Menunggu Review" :value="$stats['pending']" icon="⏳" color="rose" />
-        <x-stat-card title="Disetujui" :value="$stats['approved']" icon="✅" color="emerald" />
-        <x-stat-card title="Ditolak" :value="$stats['rejected']" icon="❌" color="blue" />
+    <div class="grid grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-6">
+        <x-stat-card title="Total Kiriman" :value="$stats['total']" icon="inbox-arrow-down" color="amber" />
+        <x-stat-card title="Menunggu Review" :value="$stats['pending']" icon="clock" color="amber" />
+        <x-stat-card title="Disetujui" :value="$stats['approved']" icon="check-circle" color="emerald" />
+        <x-stat-card title="Ditolak" :value="$stats['rejected']" icon="x-circle" color="rose" />
     </div>
 
     <!-- Submissions Table -->
     <div class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden shadow-xl">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-xs">
+        <div class="relative overflow-x-auto">
+            <table class="w-full min-w-[48rem] text-left border-collapse text-xs">
                 <thead>
                     <tr class="bg-gray-950 text-gray-400 border-b border-gray-800">
                         <th class="p-4 font-bold uppercase tracking-wider">Penulis &amp; Instansi</th>
@@ -62,12 +62,12 @@
                                     <form action="{{ route('admin.submissions.approve', $sub->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Setujui kiriman ini? Artikel publik akan otomatis dibuat dan ditayangkan.')">
                                         @csrf
                                         <button type="submit" class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-gray-950 font-bold rounded-lg text-[11px] shadow">
-                                            ✔ Setujui &amp; Terbitkan
+                                            Setujui &amp; Terbitkan
                                         </button>
                                     </form>
 
                                     <button @click="showReject = !showReject" type="button" class="px-3 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 border border-rose-500/40 font-bold rounded-lg text-[11px]">
-                                        ❌ Tolak
+                                        Tolak
                                     </button>
 
                                     <!-- Reject Form Modal inline -->
@@ -95,8 +95,10 @@
                 </tbody>
             </table>
         </div>
-        <div class="p-4 border-t border-gray-800">
-            {{ $submissions->links() }}
-        </div>
+        @if ($submissions->total() > 0)
+            <div class="p-4 border-t border-gray-800">
+                {{ $submissions->links('vendor.pagination.admin', ['noun' => 'kiriman']) }}
+            </div>
+        @endif
     </div>
 </x-admin-layout>

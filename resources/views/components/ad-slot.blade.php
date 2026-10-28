@@ -1,15 +1,21 @@
-@props(['ad', 'placement' => 'leaderboard'])
+@php($ratio = $spec['ratio'] ?? 'auto')
 
-@if($ad && $ad->is_active)
-    <div class="my-6 text-center">
-        <span class="block text-[10px] uppercase tracking-widest dark:text-gray-500 text-slate-400 mb-1">Sponsor / Iklan</span>
-        <a href="{{ $ad->redirect_url }}" target="_blank" rel="noopener noreferrer" class="inline-block overflow-hidden rounded-lg border dark:border-gray-800 border-gray-200 hover:border-amber-500/50 transition-all shadow-md">
-            <img src="{{ $ad->image_url }}" alt="{{ $ad->title }}" class="max-w-full h-auto mx-auto object-cover">
+<aside {{ $attributes->class('w-full') }} aria-label="Iklan">
+    @if ($ad)
+        <span class="mb-1.5 block text-xs font-bold tracking-widest text-fg-subtle uppercase">Iklan</span>
+        <a href="{{ $ad->redirect_url }}" target="_blank" rel="sponsored noopener"
+            class="block overflow-hidden rounded-xl border border-line bg-raised transition-colors hover:border-brand/50"
+            style="aspect-ratio: {{ $ratio }}">
+            <img src="{{ $ad->image_url }}" alt="{{ $ad->title }}" class="size-full object-cover" loading="lazy" decoding="async">
         </a>
-    </div>
-@else
-    <div class="my-6 p-4 border border-dashed dark:border-gray-800 border-gray-300 rounded-lg text-center dark:bg-gray-900/30 bg-slate-50">
-        <span class="block text-xs font-semibold dark:text-gray-400 text-slate-500">Slot Iklan ({{ ucfirst($placement) }}) Tersedia</span>
-        <a href="{{ route('pasang-iklan') }}" class="text-xs text-amber-500 hover:underline">Hubungi Tim Marketing B.Today →</a>
-    </div>
-@endif
+    @else
+        <span class="mb-1.5 block text-xs font-bold tracking-widest text-fg-subtle uppercase">Ruang Iklan</span>
+        <a href="{{ route('pasang-iklan') }}"
+            class="group flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-line-strong bg-surface p-6 text-center transition-colors hover:border-brand"
+            style="aspect-ratio: {{ $ratio }}">
+            <span class="text-xs font-bold tracking-widest text-fg-subtle uppercase">{{ $spec['size'] ?? '' }}</span>
+            <span class="text-base font-extrabold text-fg-strong group-hover:text-accent">Pasang iklan di sini</span>
+            <span class="text-sm text-fg-muted">Jangkau pembaca Banten &amp; nasional</span>
+        </a>
+    @endif
+</aside>

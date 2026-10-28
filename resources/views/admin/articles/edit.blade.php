@@ -4,8 +4,9 @@
             <h1 class="text-2xl font-black text-white">Sunting Artikel Berita</h1>
             <p class="text-xs text-gray-400">Ubah judul, naskah, atau status artikel berita.</p>
         </div>
-        <a href="{{ route('admin.articles.index') }}" class="py-2.5 px-4 bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold text-xs rounded-xl transition-all">
-            ← Kembali Ke Daftar Artikel
+        <a href="{{ route('admin.articles.index') }}" class="inline-flex items-center gap-1.5 py-2.5 px-4 bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold text-xs rounded-xl transition-all">
+            <x-heroicon-o-arrow-left class="w-4 h-4" aria-hidden="true" />
+            Kembali ke Daftar Artikel
         </a>
     </div>
 
@@ -57,7 +58,7 @@
 
             <div class="pt-4 border-t border-gray-800 flex justify-end">
                 <button type="submit" class="py-3 px-8 bg-amber-500 hover:bg-amber-600 text-gray-950 font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-xl">
-                    💾 Perbarui Artikel
+                    Perbarui Artikel
                 </button>
             </div>
         </form>
