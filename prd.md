@@ -320,6 +320,7 @@ Jangan duplikasi markup — pecah jadi component dari awal supaya konsisten dan 
 * `<x-ad-slot placement="leaderboard|sidebar|in_article">` — *class component* (`app/View/Components/AdSlot.php`) yang query iklan aktif by placement, sekaligus catat `impressions_count` tiap kali render. Controller tidak lagi meng-query iklan. Aturan tampil di 4C.3.
 * `<x-theme-toggle>` — tombol switch light/dark (44px, `aria-pressed`), state dikelola Alpine.js + disimpan ke `localStorage`.
 * `<x-category-nav>` — render navbar kategori; khusus item "Banten" render sebagai dropdown berisi `category->children` (klik/tap/keyboard), item lain tampil flat.
+* **Ikon:** pakai Heroicons outline lewat paket `blade-ui-kit/blade-heroicons` (mis. `<x-heroicon-o-newspaper class="w-5 h-5" aria-hidden="true" />`) — **jangan memakai emoji** sebagai ikon di publik maupun admin, karena tampilannya berbeda di tiap perangkat, dibacakan pembaca layar, dan terkesan template. Tombol ikon-saja (mis. Edit/Hapus di tabel admin) wajib punya label `sr-only` + `title`.
 * Komponen tampilan publik tambahan (bagian 9):
   * `<x-section-heading>` — judul seksi dengan bar amber kiri + "Lihat Semua →".
   * `<x-hero-article>` — hero split 2/3 + 1/3.

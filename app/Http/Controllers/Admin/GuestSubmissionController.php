@@ -26,11 +26,11 @@ class GuestSubmissionController extends Controller
         if ($search) {
             $submissionsQuery->where(function ($q) use ($search) {
                 $q->where('title', 'LIKE', "%{$search}%")
-                  ->orWhere('name', 'LIKE', "%{$search}%");
+                    ->orWhere('name', 'LIKE', "%{$search}%");
             });
         }
 
-        $submissions = $submissionsQuery->latest()->paginate(10)->withQueryString();
+        $submissions = $submissionsQuery->latest()->paginate($this->adminPerPage($request))->withQueryString();
 
         $stats = [
             'total' => GuestSubmission::count(),
@@ -55,7 +55,7 @@ class GuestSubmissionController extends Controller
             'author_id' => null,
             'category_id' => $submission->category_id ?? 1,
             'title' => $submission->title,
-            'slug' => Str::slug($submission->title) . '-' . Str::random(5),
+            'slug' => Str::slug($submission->title).'-'.Str::random(5),
             'content' => $submission->content,
             'guest_author_name' => $submission->name,
             'guest_author_instansi' => $submission->instansi,

@@ -13,10 +13,13 @@
         </div>
 
         @if($errors->any())
-            <div class="mb-6 p-4 bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-xl text-xs space-y-1">
-                @foreach($errors->all() as $error)
-                    <p>⚠️ {{ $error }}</p>
-                @endforeach
+            <div role="alert" class="mb-6 p-4 bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-xl text-xs flex gap-2">
+                <x-heroicon-o-exclamation-triangle class="w-5 h-5 shrink-0" aria-hidden="true" />
+                <div class="space-y-1">
+                    @foreach($errors->all() as $error)
+                        <p>{{ $error }}</p>
+                    @endforeach
+                </div>
             </div>
         @endif
 
@@ -40,12 +43,15 @@
             </div>
 
             <button type="submit" class="w-full py-3.5 bg-amber-500 hover:bg-amber-600 text-gray-950 font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-xl">
-                🔐 Masuk Ke Dashboard Redaksi
+                Masuk ke Dashboard Redaksi
             </button>
         </form>
 
         <div class="mt-8 text-center text-xs text-gray-500 pt-6 border-t border-gray-800">
-            <a href="{{ route('home') }}" class="hover:text-amber-400">← Kembali Ke Portal Publik</a>
+            <a href="{{ route('home') }}" class="inline-flex items-center gap-1.5 hover:text-amber-400">
+                <x-heroicon-o-arrow-left class="w-4 h-4" aria-hidden="true" />
+                Kembali ke Portal Publik
+            </a>
         </div>
     </div>
 </body>

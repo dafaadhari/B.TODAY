@@ -30,7 +30,7 @@ class ArticleController extends Controller
             $articlesQuery->where('title', 'LIKE', "%{$search}%");
         }
 
-        $articles = $articlesQuery->latest()->paginate(10)->withQueryString();
+        $articles = $articlesQuery->latest()->paginate($this->adminPerPage($request))->withQueryString();
 
         $stats = [
             'total' => Article::count(),
@@ -46,6 +46,7 @@ class ArticleController extends Controller
     {
         $categories = Category::all();
         $tags = Tag::all();
+
         return view('admin.articles.create', compact('categories', 'tags'));
     }
 
@@ -54,7 +55,7 @@ class ArticleController extends Controller
         $thumbnailPath = null;
         if ($request->hasFile('thumbnail')) {
             $file = $request->file('thumbnail');
-            $filename = Str::random(40) . '.' . $file->getClientOriginalExtension();
+            $filename = Str::random(40).'.'.$file->getClientOriginalExtension();
             $thumbnailPath = $file->storeAs('thumbnails', $filename, 'public');
         }
 
@@ -62,7 +63,7 @@ class ArticleController extends Controller
             'author_id' => Auth::id(),
             'category_id' => $request->category_id,
             'title' => $request->title,
-            'slug' => Str::slug($request->title) . '-' . Str::random(5),
+            'slug' => Str::slug($request->title).'-'.Str::random(5),
             'content' => $request->content,
             'thumbnail_path' => $thumbnailPath ? Storage::url($thumbnailPath) : null,
             'status' => $request->status,
@@ -86,6 +87,7 @@ class ArticleController extends Controller
     {
         $categories = Category::all();
         $tags = Tag::all();
+
         return view('admin.articles.edit', compact('article', 'categories', 'tags'));
     }
 
@@ -93,7 +95,7 @@ class ArticleController extends Controller
     {
         if ($request->hasFile('thumbnail')) {
             $file = $request->file('thumbnail');
-            $filename = Str::random(40) . '.' . $file->getClientOriginalExtension();
+            $filename = Str::random(40).'.'.$file->getClientOriginalExtension();
             $thumbnailPath = $file->storeAs('thumbnails', $filename, 'public');
             $article->thumbnail_path = Storage::url($thumbnailPath);
         }

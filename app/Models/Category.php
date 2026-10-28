@@ -28,16 +28,22 @@ class Category extends Model
     public static function navigation(): Collection
     {
         return once(function (): Collection {
-            $order = array_keys(config('portal.nav', []));
-
             return static::with(['children' => fn ($query) => $query->orderBy('name')])
                 ->whereNull('parent_id')
                 ->get()
-                ->sortBy(fn (Category $category): int => array_search($category->slug, $order, true) === false
-                    ? PHP_INT_MAX
-                    : array_search($category->slug, $order, true))
+                ->sortBy(fn (Category $category): int => $category->navigationPosition())
                 ->values();
         });
+    }
+
+    /**
+     * Posisi kategori pada urutan `config('portal.nav')`; yang tidak tercantum di akhir.
+     */
+    public function navigationPosition(): int
+    {
+        $position = array_search($this->slug, array_keys(config('portal.nav', [])), true);
+
+        return $position === false ? PHP_INT_MAX : $position;
     }
 
     /**
@@ -46,6 +52,23 @@ class Category extends Model
     public function navLabel(): string
     {
         return config("portal.nav.{$this->slug}", $this->name);
+    }
+
+    /**
+     * Alasan kategori belum boleh dihapus, atau null bila kosong. Menghapus kategori
+     * ikut menghapus artikelnya (cascade) dan melepas sub-kategorinya menjadi kategori utama.
+     */
+    public function deletionBlocker(): ?string
+    {
+        $articleCount = $this->articles_count ?? $this->articles()->count();
+        $childCount = $this->children_count ?? $this->children()->count();
+
+        $contents = array_filter([
+            $articleCount > 0 ? "{$articleCount} artikel" : null,
+            $childCount > 0 ? "{$childCount} sub-kategori" : null,
+        ]);
+
+        return $contents === [] ? null : 'Masih berisi '.implode(' dan ', $contents).'.';
     }
 
     public function parent(): BelongsTo

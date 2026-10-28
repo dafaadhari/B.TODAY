@@ -144,7 +144,10 @@
                     <h2 class="mb-4 border-l-4 border-brand pl-3 text-lg font-extrabold tracking-widest text-fg-strong uppercase">Ketentuan</h2>
                     <ul class="space-y-2.5 text-sm text-fg">
                         @foreach (['Tulisan asli karya sendiri, bukan salinan.', 'Belum pernah dimuat di media lain.', 'Tidak memuat fitnah, SARA, atau ujaran kebencian.', 'Redaksi berhak menyunting tanpa mengubah substansi.'] as $rule)
-                            <li class="flex gap-2"><span class="text-accent" aria-hidden="true">&check;</span>{{ $rule }}</li>
+                            <li class="flex gap-3">
+                                <span class="mt-2 size-1.5 shrink-0 bg-brand" aria-hidden="true"></span>
+                                {{ $rule }}
+                            </li>
                         @endforeach
                     </ul>
                     <p class="mt-5 border-t border-line pt-4 text-sm leading-relaxed text-fg-muted">

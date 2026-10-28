@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\ArticleController as AdminArticleController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\GuestSubmissionController as AdminSubmissionController;
+use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CategoryController;
@@ -47,7 +48,8 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 | Admin CMS Routes (Protected by Auth)
 |--------------------------------------------------------------------------
 */
-Route::prefix('admin')->middleware('auth')->name('admin.')->group(function () {
+// auth.session: sesi lain ikut keluar ketika password akun diganti.
+Route::prefix('admin')->middleware(['auth', 'auth.session'])->name('admin.')->group(function () {
     Route::get('/', AdminDashboardController::class)->name('dashboard');
 
     // Articles Management & Approval Workflow
@@ -64,5 +66,10 @@ Route::prefix('admin')->middleware('auth')->name('admin.')->group(function () {
     Route::post('ads/{ad}/toggle', [AdminAdController::class, 'toggleActive'])->name('ads.toggle');
 
     // Categories Management
-    Route::resource('categories', AdminCategoryController::class)->only(['index', 'store', 'destroy']);
+    Route::resource('categories', AdminCategoryController::class)->only(['index', 'store', 'update', 'destroy']);
+
+    // Profil akun yang sedang login
+    Route::get('profile', [AdminProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('profile', [AdminProfileController::class, 'update'])->name('profile.update');
+    Route::put('profile/password', [AdminProfileController::class, 'updatePassword'])->middleware('throttle:6,1')->name('profile.password');
 });

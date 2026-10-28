@@ -53,11 +53,14 @@
                         </div>
                         <h3 class="mb-2 text-lg font-extrabold text-fg-strong">{{ $slot['label'] }}</h3>
                         <p class="mb-4 text-sm leading-relaxed text-fg-muted">{{ $slot['description'] }}</p>
-                        <ul class="mb-6 space-y-2 text-sm text-fg">
-                            @foreach (['Posisi: '.$slot['position'], 'Ukuran: '.$slot['size'], 'Format: JPG, PNG, atau WebP', 'Maks. file: '.$slot['max_file']] as $spec)
-                                <li class="flex gap-2"><span class="text-accent" aria-hidden="true">&check;</span>{{ $spec }}</li>
+                        <dl class="mb-6 divide-y divide-line border-y border-line text-sm">
+                            @foreach (['Posisi' => $slot['position'], 'Ukuran' => $slot['size'], 'Format' => 'JPG, PNG, atau WebP', 'Maks. file' => $slot['max_file']] as $label => $value)
+                                <div class="flex gap-3 py-2">
+                                    <dt class="w-20 shrink-0 text-xs font-bold tracking-wider text-fg-muted uppercase">{{ $label }}</dt>
+                                    <dd class="text-fg">{{ $value }}</dd>
+                                </div>
                             @endforeach
-                        </ul>
+                        </dl>
                         <button type="button" @click="chooseSlot(@js($slot['label']))"
                             class="mt-auto inline-flex min-h-11 items-center justify-center rounded-lg border border-line-strong text-xs font-bold tracking-widest text-fg-strong uppercase transition-colors hover:border-brand hover:text-accent">
                             Pilih slot ini

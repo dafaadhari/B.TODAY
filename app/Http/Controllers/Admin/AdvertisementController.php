@@ -10,9 +10,10 @@ use Illuminate\Support\Facades\Auth;
 
 class AdvertisementController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $ads = Advertisement::latest()->get();
+        $ads = Advertisement::latest()->paginate($this->adminPerPage($request))->withQueryString();
+
         return view('admin.ads.index', compact('ads'));
     }
 

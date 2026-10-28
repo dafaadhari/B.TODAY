@@ -8,7 +8,7 @@
 
     <!-- Add Ad Form Card -->
     <div class="bg-gray-900 border border-gray-800 p-6 rounded-2xl mb-8 shadow-xl">
-        <h3 class="text-sm font-bold text-amber-400 mb-4">+ Tambah Banner Iklan Baru</h3>
+        <h3 class="text-sm font-bold text-amber-400 mb-4">Tambah Banner Iklan Baru</h3>
         <form action="{{ route('admin.ads.store') }}" method="POST" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             @csrf
             <div>
@@ -48,8 +48,8 @@
         <div class="p-4 border-b border-gray-800">
             <h3 class="text-sm font-bold text-white">Daftar Slot Iklan Terpasang</h3>
         </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-xs">
+        <div class="relative overflow-x-auto">
+            <table class="w-full min-w-[48rem] text-left border-collapse text-xs">
                 <thead>
                     <tr class="bg-gray-950 text-gray-400 border-b border-gray-800">
                         <th class="p-4 font-bold uppercase">Banner</th>
@@ -79,19 +79,23 @@
                                 <form action="{{ route('admin.ads.toggle', $ad->id) }}" method="POST">
                                     @csrf
                                     <button type="submit" class="px-2.5 py-1 rounded text-[10px] font-bold border {{ $ad->is_active ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-rose-500/10 text-rose-400 border-rose-500/30' }}">
-                                        {{ $ad->is_active ? '● AKTIF' : '○ NONAKTIF' }}
+                                        {{ $ad->is_active ? 'AKTIF' : 'NONAKTIF' }}
                                     </button>
                                 </form>
                             </td>
-                            <td class="p-4 text-xs font-mono">
-                                👁️ {{ number_format($ad->impressions_count) }} | 🖱️ {{ number_format($ad->clicks_count) }}
+                            <td class="p-4 text-xs text-gray-300 whitespace-nowrap">
+                                <span class="text-gray-500">Tayang</span> <span class="font-mono">{{ number_format($ad->impressions_count) }}</span>
+                                <span class="mx-1 text-gray-600" aria-hidden="true">&middot;</span>
+                                <span class="text-gray-500">Klik</span> <span class="font-mono">{{ number_format($ad->clicks_count) }}</span>
                             </td>
                             <td class="p-4 text-right">
-                                <form action="{{ route('admin.ads.destroy', $ad->id) }}" method="POST" onsubmit="return confirm('Hapus slot iklan ini?')">
+                                <form action="{{ route('admin.ads.destroy', $ad->id) }}" method="POST" onsubmit="return confirm('Hapus slot iklan ini?')" class="inline-block">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="px-2.5 py-1 bg-rose-500/20 text-rose-400 border border-rose-500/40 font-bold rounded text-[11px]">
-                                        🗑️ Hapus
+                                    <button type="submit" title="Hapus iklan"
+                                        class="inline-flex w-8 h-8 items-center justify-center bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 border border-rose-500/40 rounded-lg">
+                                        <x-heroicon-o-trash class="w-4 h-4" aria-hidden="true" />
+                                        <span class="sr-only">Hapus iklan {{ $ad->title }}</span>
                                     </button>
                                 </form>
                             </td>
@@ -106,5 +110,10 @@
                 </tbody>
             </table>
         </div>
+        @if ($ads->total() > 0)
+            <div class="p-4 border-t border-gray-800">
+                {{ $ads->links('vendor.pagination.admin', ['noun' => 'iklan']) }}
+            </div>
+        @endif
     </div>
 </x-admin-layout>
