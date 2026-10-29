@@ -25,4 +25,10 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Dokumen & panduan AI lokal: tidak dibutuhkan untuk go-live, jangan ikut di-push
 /prd.md
+/component_audit.md
+/CLAUDE.md
+/AGENTS.md
+/.claude/
