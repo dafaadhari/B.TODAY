@@ -168,16 +168,10 @@
     }
 }
 
-/* Transisi warna hanya saat pembaca menekan toggle tema, bukan saat halaman dimuat. */
-.theme-transitioning,
-.theme-transitioning *,
-.theme-transitioning *::before,
-.theme-transitioning *::after {
-    transition:
-        background-color 300ms ease,
-        border-color 300ms ease,
-        color 300ms ease !important;
-    transition-delay: 0s !important;
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation-duration: 250ms;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Tipografi isi artikel, meniru demo/detail.html (PRD 9.4): 17px HP, 18px desktop, maks. 70 karakter. */

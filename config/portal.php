@@ -58,6 +58,12 @@ return [
     ],
 
     /*
+     * Jumlah maksimal kategori induk di menu header desktop; sisanya masuk dropdown "Lainnya"
+     * supaya header tidak meluap di layar laptop saat admin menambah kategori.
+     */
+    'nav_limit' => 8,
+
+    /*
      * Perkiraan lama review kiriman tulisan publik, ditampilkan ke penulis tamu.
      */
     'review_days' => '3–5 hari kerja',

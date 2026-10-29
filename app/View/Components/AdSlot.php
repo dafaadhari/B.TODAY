@@ -9,6 +9,8 @@ use Illuminate\View\Component;
 /**
  * Slot iklan publik (PRD 4C.3 & 8.7): mengambil sendiri iklan aktif per
  * placement dan mencatat impression hanya saat slot benar-benar dirender.
+ * Bila beberapa iklan aktif di placement yang sama, iklan dipilih acak tiap
+ * render sehingga tayangannya bergiliran.
  */
 class AdSlot extends Component
 {
@@ -26,6 +28,7 @@ class AdSlot extends Component
         $this->ad = Advertisement::query()
             ->where('placement', $placement)
             ->where('is_active', true)
+            ->inRandomOrder()
             ->first();
     }
 

@@ -69,6 +69,13 @@
                             <td class="p-4">
                                 <span class="font-bold text-gray-100 block text-xs">{{ $ad->title }}</span>
                                 <span class="text-[10px] text-amber-400 uppercase font-mono">{{ $ad->placement }}</span>
+                                @php($otherActiveAds = $ad->is_active ? ($activeAdsPerPlacement[$ad->placement] ?? 1) - 1 : 0)
+                                @if ($otherActiveAds > 0)
+                                    <span class="mt-1 flex items-center gap-1 text-[10px] text-gray-400">
+                                        <x-heroicon-o-arrow-path class="w-3.5 h-3.5" aria-hidden="true" />
+                                        Bergiliran dengan {{ $otherActiveAds }} iklan lain
+                                    </span>
+                                @endif
                             </td>
                             <td class="p-4">
                                 <a href="{{ $ad->redirect_url }}" target="_blank" class="text-xs text-amber-400 hover:underline truncate max-w-xs block">

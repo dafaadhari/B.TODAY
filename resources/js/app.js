@@ -15,18 +15,43 @@ function storeThemePreference(value) {
     }
 }
 
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
 Alpine.store('theme', {
     dark: root.classList.contains('dark'),
 
     toggle() {
-        root.classList.add('theme-transitioning');
-        this.dark = !this.dark;
-        root.classList.toggle('dark', this.dark);
-        root.classList.toggle('light', !this.dark);
-        document.querySelector('meta[name="theme-color"]')?.setAttribute('content', this.dark ? '#050505' : '#fafaf9');
+        this.apply(!this.dark);
         storeThemePreference(this.dark ? 'dark' : 'light');
-        setTimeout(() => root.classList.remove('theme-transitioning'), 350);
     },
+
+
+    apply(dark, { animate = true } = {}) {
+        // State dicatat langsung; hanya tampilan (class) yang menunggu potret View Transition.
+        this.dark = dark;
+
+        const update = () => {
+            root.classList.toggle('dark', dark);
+            root.classList.toggle('light', !dark);
+            document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#050505' : '#fafaf9');
+        };
+
+        if (!animate || !document.startViewTransition || prefersReducedMotion.matches) {
+            update();
+
+            return;
+        }
+
+        // Klik beruntun: transisi sebelumnya otomatis diselesaikan oleh browser.
+        document.startViewTransition(update).ready.catch(() => {});
+    },
+});
+
+// Tema ikut berganti di tab lain yang sedang membuka situs ini (event `storage` hanya terpicu di tab lain).
+window.addEventListener('storage', (event) => {
+    if (event.key === 'theme' && event.newValue) {
+        Alpine.store('theme').apply(event.newValue !== 'light', { animate: false });
+    }
 });
 
 /**

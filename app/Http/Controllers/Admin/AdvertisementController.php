@@ -14,7 +14,13 @@ class AdvertisementController extends Controller
     {
         $ads = Advertisement::latest()->paginate($this->adminPerPage($request))->withQueryString();
 
-        return view('admin.ads.index', compact('ads'));
+        // Iklan aktif per placement, untuk keterangan "Bergiliran dengan N iklan lain".
+        $activeAdsPerPlacement = Advertisement::where('is_active', true)
+            ->selectRaw('placement, count(*) as total')
+            ->groupBy('placement')
+            ->pluck('total', 'placement');
+
+        return view('admin.ads.index', compact('ads', 'activeAdsPerPlacement'));
     }
 
     public function store(Request $request)
